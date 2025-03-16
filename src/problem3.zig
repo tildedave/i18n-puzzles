@@ -13,7 +13,7 @@ pub fn answer(lines: std.mem.SplitIterator(u8, .scalar)) !void {
         if (result) |_| {
             valid += 1;
         } else |_| {}
-        // std.debug.print("{s} {any}\n", .{ line, result });
+        std.debug.print("{s} {any}\n", .{ line, result });
     }
     std.debug.print("{d}\n", .{valid});
 }
@@ -37,11 +37,11 @@ pub fn validatePassword(line: []const u8) !bool {
     var code_point_iterator = (try unicode.Utf8View.init(line)).iterator();
 
     while (code_point_iterator.nextCodepoint()) |cp| {
-        std.debug.print("0x{x} is {u} isUpper {any} isLower {any}\n", .{ cp, cp, ziglyph.isUpper(cp), ziglyph.isLower(cp) });
+        // std.debug.print("0x{x} is {u} isNonAscii {any} isUpper {any} isLower {any}\n", .{ cp, cp, cp > 0xFF, ziglyph.isUpper(cp), ziglyph.isLower(cp) });
         if (cp >= 0x30 and cp <= 0x39) {
             has_digit = true;
         }
-        if (cp > 0xFF) {
+        if (cp > 127) {
             has_non_ascii = true;
         }
         if (ziglyph.isUpper(cp)) {
