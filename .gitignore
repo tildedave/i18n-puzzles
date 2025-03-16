@@ -1,3 +1,4 @@
 *.txt
 *.o
-problem
+zig-out
+.zig-cache

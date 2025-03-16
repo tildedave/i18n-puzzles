@@ -7,13 +7,13 @@ const ctime = @cImport({
 const testInput = @embedFile("input2-test.txt");
 const input = @embedFile("input2.txt");
 
-pub fn main() !void {
-    var splits = std.mem.splitScalar(u8, input, '\n');
+pub fn answer(lines: std.mem.SplitIterator(u8, .scalar)) !void {
     var map = std.AutoHashMap(ctime.time_t, u8).init(allocator);
     defer map.deinit();
 
-    var result: ctime.time_t = 0;
-    while (splits.next()) |line| {
+    var fourTimes: ctime.time_t = 0;
+    var foo = lines;
+    while (foo.next()) |line| {
         if (line.len == 0) {
             continue;
         }
@@ -26,20 +26,20 @@ pub fn main() !void {
         const gmt: ctime.time_t = ctime.mktime(&time);
         const num = map.get(gmt) orelse 0;
         if (num == 3) {
-            result = gmt;
+            fourTimes = gmt;
             break;
         }
         try map.put(gmt, num + 1);
     }
 
-    if (result == 0) {
+    if (fourTimes == 0) {
         return error.NotFound;
     }
 
-    var answer: [255]u8 = undefined;
-    const backout = ctime.gmtime(&result);
-    const bytesWritten = ctime.strftime(&answer, 255, "%Y-%m-%dT%H:%M:%S", backout);
-    std.debug.print("{s}+00:00\n", .{answer[0..bytesWritten]});
+    const backout = ctime.gmtime(&fourTimes);
+    var result: [255]u8 = undefined;
+    const bytesWritten = ctime.strftime(&result, 255, "%Y-%m-%dT%H:%M:%S", backout);
+    std.debug.print("{s}+00:00\n", .{result[0..bytesWritten]});
 }
 
 pub fn removeColon(line: []const u8) ![]u8 {
