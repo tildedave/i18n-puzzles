@@ -1,4 +1,4 @@
 *.txt
-*.o
-zig-out
-.zig-cache
+zig/*.o
+zig/zig-out
+zig/.zig-cache
