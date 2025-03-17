@@ -1,9 +1,8 @@
 const std = @import("std");
-const zeit = @import("zeit");
+const zdt = @import("zdt");
 
 fn parseLine(line: []const u8) struct { []const u8, []const u8 } {
     var i: u8 = 11;
-    std.debug.print("{d}\n", .{line[i]});
     while (line[i] != ' ') {
         i += 1;
     }
@@ -15,21 +14,24 @@ fn parseLine(line: []const u8) struct { []const u8, []const u8 } {
     return .{ line[11..tzEnd], line[i..] };
 }
 
-// There's probably some way to do this better
-fn stringToTimeZone(str: []const u8) !zeit.Location {
-    for (std.enums.values(zeit.Location)) |f| {
-        if (std.mem.eql(u8, f.asText(), str)) {
-            return f;
-        }
-    }
-
-    std.debug.print("no match {s}\n", .{str});
-    return error.Invalid;
+fn tzLocalizeFallback(dt: zdt.Datetime, opts: ?zdt.Datetime.tz_options) zdt.ZdtError!zdt.Datetime {
+    return zdt.Datetime.fromFields(.{
+        .year = dt.year,
+        .month = dt.month,
+        .day = dt.day,
+        .hour = dt.hour,
+        .minute = dt.minute,
+        .second = dt.second,
+        .nanosecond = dt.nanosecond,
+        .tz_options = opts,
+        .dst_fold = 1,
+    });
 }
 
 pub fn answer(lines: std.mem.SplitIterator(u8, .scalar)) !void {
-    const alloc = std.heap.page_allocator;
+    const allocator = std.heap.page_allocator;
     var foo = lines;
+    var total_seconds: i64 = 0;
     while (foo.next()) |source_line| {
         if (source_line.len == 0) {
             break;
@@ -40,36 +42,29 @@ pub fn answer(lines: std.mem.SplitIterator(u8, .scalar)) !void {
         const parsed_source = parseLine(source_line);
         const parsed_dest = parseLine(dest_line);
 
-        const source_location = try stringToTimeZone(parsed_source[0]);
-        const dest_location = try stringToTimeZone(parsed_dest[0]);
+        var source_tz = try zdt.Timezone.fromTzdata(parsed_source[0], allocator);
+        var dest_tz = try zdt.Timezone.fromTzdata(parsed_dest[0], allocator);
+        defer source_tz.deinit();
+        defer dest_tz.deinit();
 
-        std.debug.print("{any}\n", .{source_location});
+        // std.debug.print("{s}\n", .{source_tz.name()});
+        // std.debug.print("{s}\n", .{dest_tz.name()});
 
-        const dest_timezone = zeit.loadTimeZone(alloc, source_location, null);
-        const source_timezone = zeit.loadTimeZone(alloc, dest_location, null);
+        // std.debug.print("{s}\n", .{parsed_source[1]});
+        // std.debug.print("{s}\n", .{parsed_dest[1]});
 
-        std.debug.print("{any}\n", .{source_timezone});
-        std.debug.print("{any}\n", .{dest_timezone});
+        const source_timestamp = try zdt.Datetime.fromString(parsed_source[1], "%b %d, %Y, %H:%M");
+        const dest_timestamp = try zdt.Datetime.fromString(parsed_dest[1], "%b %d, %Y, %H:%M");
 
+        const source_localized = source_timestamp.tzLocalize(.{ .tz = &source_tz }) catch try tzLocalizeFallback(source_timestamp, .{ .tz = &source_tz });
+        const dest_localized = dest_timestamp.tzLocalize(.{ .tz = &dest_tz }) catch try tzLocalizeFallback(dest_timestamp, .{ .tz = &source_tz });
+
+        const delta = @divTrunc((dest_localized.unix_sec - source_localized.unix_sec), 60);
+        std.debug.print("{d}\n", .{delta});
+
+        total_seconds += delta;
         _ = foo.next();
     }
-}
 
-test "test this" {
-    const testString = "Departure: Europe/London                  Mar 04, 2020, 10:00";
-    const parsed = parseLine(testString);
-    std.debug.print("{s}\n", .{parsed[0]});
-    std.debug.print("{s}\n", .{parsed[1]});
-
-    const zone = try zeit.loadTimeZone(std.heap.page_allocator);
-    std.debug.print("{any}\n", .{zone});
-
-    // if (std.mem.eql(u8, testString[0..12], "Departure: ")) {} else if (std.mem.eql(u8, testString[0..12], "Arrival:   ")) {
-    //     var i = 12;
-    // }
-    // var iter = std.mem.split(u8, testString, ' ');
-    // while (iter.next()) |part| {
-    //     std.debug.print("{s}\n", .{part});
-    // }
-    try std.testing.expect(1 == 1);
+    std.debug.print("{d}\n", .{total_seconds});
 }

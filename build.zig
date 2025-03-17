@@ -68,11 +68,11 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .target = target,
     });
-    const zeit = b.dependency("zeit", .{ .target = target, .optimize = optimize });
+    const zdt = b.dependency("zdt", .{ .target = target, .optimize = optimize });
 
     // for exe, lib, tests, etc.
     exe.root_module.addImport("ziglyph", ziglyph.module("ziglyph"));
-    exe.root_module.addImport("zeit", zeit.module("zeit"));
+    exe.root_module.addImport("zdt", zdt.module("zdt"));
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default

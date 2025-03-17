@@ -36,13 +36,14 @@
     // Once all dependencies are fetched, `zig build` no longer requires
     // internet connectivity.
     .dependencies = .{
-        .ziglyph = .{ 
-            .url = "https://codeberg.org/dude_the_builder/ziglyph/archive/v0.13.1.tar.gz", 
-            .hash = "ziglyph-0.11.2-AAAAAHPtHwB4Mbzn1KvOV7Wpjo82NYEc_v0WC8oCLrkf" 
-        },
+        .ziglyph = .{ .url = "https://codeberg.org/dude_the_builder/ziglyph/archive/v0.13.1.tar.gz", .hash = "ziglyph-0.11.2-AAAAAHPtHwB4Mbzn1KvOV7Wpjo82NYEc_v0WC8oCLrkf" },
         .zeit = .{
             .url = "https://github.com/rockorager/zeit/archive/refs/heads/main.zip",
             .hash = "zeit-0.0.0-5I6bk_pZAgB03N1p1GmVOZ--gOFwwQSRKj1UXb5tnaKS",
+        },
+        .zdt = .{
+            .url = "https://github.com/FObersteiner/zdt/archive/refs/tags/v0.6.0.tar.gz",
+            .hash = "zdt-0.6.0-xr0_vFq1EADdMzASSsZeYD9Q7j7guqaK7YIgcpoKt9ti",
         },
     },
     .paths = .{
