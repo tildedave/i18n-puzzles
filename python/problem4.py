@@ -2,7 +2,7 @@ from pytz import timezone
 from datetime import datetime
 
 if __name__ == "__main__":
-    f = open("input4.txt", 'r')
+    f = open("../input4.txt", 'r')
     lines = f.read().split('\n')
 
     total = 0

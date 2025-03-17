@@ -1,5 +1,5 @@
 if __name__ == "__main__":
-    f = open("input3.txt", 'r')
+    f = open("../input3.txt", 'r')
     lines = f.read().split('\n')
     num = 0
     for line in lines[0:-1]:
