@@ -2,6 +2,11 @@ const std = @import("std");
 const ziglyph = @import("ziglyph");
 const unicode = @import("std").unicode;
 
+test "test this" {
+    _ = ziglyph.isUpper('\n');
+    try std.testing.expect(1 == 1);
+}
+
 pub fn answer(lines: std.mem.SplitIterator(u8, .scalar)) !void {
     var foo = lines;
     var valid: u64 = 0;
