@@ -10,11 +10,9 @@ pub fn answer(lines: std.mem.SplitIterator(u8, .scalar)) !void {
     var foo2 = lines;
 
     while (foo2.next()) |line| {
-        var my_width: u32 = 1;
+        var my_width: u32 = 0;
         var cp_iter = (try unicode.Utf8View.init(line)).iterator();
-        while (cp_iter.nextCodepoint()) |cp| {
-            const loc = try list.addOne();
-            loc.* = cp;
+        while (cp_iter.nextCodepoint()) |_| {
             my_width += 1;
         }
         if (my_width > width) {
@@ -22,8 +20,6 @@ pub fn answer(lines: std.mem.SplitIterator(u8, .scalar)) !void {
         }
         height += 1;
     }
-
-    std.debug.print("height = {d} width = {d}\n", .{ height, width });
 
     while (foo.next()) |line| {
         if (line.len == 0) {
@@ -36,19 +32,23 @@ pub fn answer(lines: std.mem.SplitIterator(u8, .scalar)) !void {
             loc.* = cp;
             row_width += 1;
         }
-        while (row_width < width) {
+        while (row_width <= width) {
             const loc = try list.addOne();
             loc.* = ' ';
             row_width += 1;
         }
+        // std.debug.print("after row {any} {d}\n", .{ list, list.items.len });
     }
-    std.debug.print("{any} {d}\n", .{ list, list.items.len });
 
     var x: u32 = 0;
     var y: u32 = 0;
-    while (y < height) {
-        std.debug.print("{d},{d} {u}\n", .{ x, y, list.items[y * (width - 1) + x] });
+    var poops: u32 = 0;
+    while (y < height - 1) {
+        if (list.items[y * width + x] == '💩') {
+            poops += 1;
+        }
         x = @mod(x + 2, width);
         y += 1;
     }
+    std.debug.print("{d}\n", .{poops});
 }
