@@ -4,6 +4,7 @@ const problem2 = @import("problem2.zig");
 const problem3 = @import("problem3.zig");
 const problem4 = @import("problem4.zig");
 const problem5 = @import("problem5.zig");
+const problem6 = @import("problem6.zig");
 
 pub fn main() !void {
     var iter = std.process.args();
@@ -27,6 +28,8 @@ pub fn main() !void {
         try problem4.answer(splits);
     } else if (std.mem.eql(u8, problem, "problem5")) {
         try problem5.answer(splits);
+    } else if (std.mem.eql(u8, problem, "problem6")) {
+        try problem6.answer(splits);
     } else {
         return error.InvalidProblem;
     }

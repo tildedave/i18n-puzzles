@@ -2,3 +2,4 @@
 zig/*.o
 zig/zig-out
 zig/.zig-cache
+__pycache__
