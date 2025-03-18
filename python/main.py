@@ -1,6 +1,7 @@
 import argparse
-from problem6 import answer as problem6_answer
-from problem7 import answer as problem7_answer
+import problem6
+import problem7
+import problem8
 
 
 if __name__ == "__main__":
@@ -11,6 +12,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     lines = open(args.input_file, 'r').read().split('\n')
     if args.problem == 'problem6':
-        problem6_answer(lines)
-    if args.problem == 'problem7':
-        problem7_answer(lines)
+        problem6.answer(lines)
+    elif args.problem == 'problem7':
+        problem7.answer(lines)
+    elif args.problem == 'problem8':
+        problem8.answer(lines)
+    else:
+        raise ValueError('Invalid Problem')
