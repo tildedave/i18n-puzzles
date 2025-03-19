@@ -2,6 +2,7 @@ import argparse
 import problem6
 import problem7
 import problem8
+import problem9
 
 
 if __name__ == "__main__":
@@ -17,5 +18,7 @@ if __name__ == "__main__":
         problem7.answer(lines)
     elif args.problem == 'problem8':
         problem8.answer(lines)
+    elif args.problem == 'problem9':
+        problem9.answer(lines)
     else:
         raise ValueError('Invalid Problem')
