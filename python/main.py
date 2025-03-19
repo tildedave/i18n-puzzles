@@ -4,6 +4,7 @@ import problem7
 import problem8
 import problem9
 import problem10
+import problem11
 
 
 if __name__ == "__main__":
@@ -23,5 +24,7 @@ if __name__ == "__main__":
         problem9.answer(lines)
     elif args.problem == 'problem10':
         problem10.answer(lines)
+    elif args.problem == 'problem11':
+        problem11.answer(lines)
     else:
         raise ValueError('Invalid Problem')
