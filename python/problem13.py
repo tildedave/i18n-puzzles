@@ -17,7 +17,7 @@ def decode_str(hex_str):
         yield bytearray.fromhex(hex_str[4:]).decode('utf-16-le')
         return
 
-    for codec in 'utf-16-le', 'utf-8', 'utf-16-be', 'latin-1':
+    for codec in ['utf-16-le', 'utf-8', 'utf-16-be', 'latin-1']:
         try:
             yield bytearray.fromhex(hex_str).decode(codec)
         except:
