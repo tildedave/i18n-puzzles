@@ -34,9 +34,11 @@ def english_accent_stripper(s: str):
 
 def swedish_accent_stripper(s):
     result = []
-    for oc in s:
+    for oc, nc in zip(s, unicodedata.normalize('NFD', s)):
         if oc in swedish_letter_idxs:
             result.append(oc)
+        elif unicodedata.category(nc) != 'Mu':
+            result.append(nc)
 
     return ''.join(result)
 
@@ -68,7 +70,7 @@ def compare_lines(comparator, accent_stripper, line1, line2):
     last_name1, first_name1 = name1.split(',')
     last_name2, first_name2 = name2.split(',')
 
-    print('name', last_name1, 'stripped', accent_stripper(last_name1), '|', 'name', last_name2, 'stripped', accent_stripper(last_name2), last_name2)
+    # print('name', last_name1, 'stripped', accent_stripper(last_name1), '|', 'name', last_name2, 'stripped', accent_stripper(last_name2), last_name2)
 
     if d := comparator(accent_stripper(last_name1), accent_stripper(last_name2)):
         return d
@@ -143,6 +145,16 @@ def answer(lines: List[str]):
     english_sorted = sorted(lines, key=cmp_to_key(partial(compare_lines, english_word_comparator, english_accent_stripper)))
     swedish_sorted = sorted(lines, key=cmp_to_key(partial(compare_lines, swedish_word_comparator, swedish_accent_stripper)))
     dutch_sorted = sorted(lines, key=cmp_to_key(partial(compare_lines, english_word_comparator, dutch_accent_stripper)))
+    print('-----')
+    for l in english_sorted:
+        print(l)
+    print('-----')
+    for l in swedish_sorted:
+        print(l)
+    print('-----')
+    for l in dutch_sorted:
+        print(l)
+    print('-----')
 
     a = int(english_sorted[middle].split(':')[1].strip())
     b = int(swedish_sorted[middle].split(':')[1].strip())
