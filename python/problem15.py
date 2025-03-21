@@ -68,10 +68,42 @@ def answer(lines: List[str]):
     overtime_by_customer = defaultdict(int)
 
     while dt < end_dt:
-        for customer in customers:
-            # if customer.name != "FaxSchool, Halifax":
-            #     continue
+        # Coverage is based on if the time is between 08:30 to 17:00
+        # in their time
+        has_coverage = False
+        for office in offices:
+            office_dt = dt.astimezone(office.timezone)
+            if not is_weekday(office_dt.date()):
+                continue
 
+            if office_dt.date() in office.holidays:
+                continue
+
+            start_workday = office.timezone.localize(
+                datetime(
+                    office_dt.year,
+                    office_dt.month,
+                    office_dt.day,
+                    hour=8,
+                    minute=30,
+                    second=0,
+                )
+            )
+            end_workday = office.timezone.localize(
+                datetime(
+                    office_dt.year,
+                    office_dt.month,
+                    office_dt.day,
+                    hour=17,
+                    minute=0,
+                    second=0,
+                )
+            )
+            if start_workday <= office_dt < end_workday:
+                has_coverage = True
+                break
+
+        for customer in customers:
             customer_dt = dt.astimezone(customer.timezone)
             if not is_weekday(customer_dt.date()):
                 continue
@@ -79,41 +111,6 @@ def answer(lines: List[str]):
             # Check if it's a holiday for the customer
             if customer_dt.date() in customer.holidays:
                 continue
-
-            # Coverage is based on if the time is between 08:30 to 17:00
-            # in their time
-            has_coverage = False
-            for office in offices:
-                office_dt = dt.astimezone(office.timezone)
-                if not is_weekday(office_dt.date()):
-                    continue
-
-                if office_dt.date() in office.holidays:
-                    continue
-
-                start_workday = office.timezone.localize(
-                    datetime(
-                        office_dt.year,
-                        office_dt.month,
-                        office_dt.day,
-                        hour=8,
-                        minute=30,
-                        second=0,
-                    )
-                )
-                end_workday = office.timezone.localize(
-                    datetime(
-                        office_dt.year,
-                        office_dt.month,
-                        office_dt.day,
-                        hour=17,
-                        minute=0,
-                        second=0,
-                    )
-                )
-                if start_workday <= office_dt < end_workday:
-                    has_coverage = True
-                    break
 
             if not has_coverage:
                 overtime_by_customer[customer.name] += 30
