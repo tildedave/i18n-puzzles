@@ -1,23 +1,24 @@
 from typing import List
 
+
 def hex_to_bytes(hex_str):
     return bytearray.fromhex(hex_str)
 
 
 def decode_str(hex_str):
-    if hex_str.startswith('feff'):
-        yield bytearray.fromhex(hex_str[4:]).decode('utf-16-be')
+    if hex_str.startswith("feff"):
+        yield bytearray.fromhex(hex_str[4:]).decode("utf-16-be")
         return
 
-    if hex_str.startswith('efbbbf'):
-        yield bytearray.fromhex(hex_str[6:]).decode('utf-8')
+    if hex_str.startswith("efbbbf"):
+        yield bytearray.fromhex(hex_str[6:]).decode("utf-8")
         return
 
-    if hex_str.startswith('fffe'):
-        yield bytearray.fromhex(hex_str[4:]).decode('utf-16-le')
+    if hex_str.startswith("fffe"):
+        yield bytearray.fromhex(hex_str[4:]).decode("utf-16-le")
         return
 
-    for codec in ['utf-16-le', 'utf-8', 'utf-16-be', 'latin-1']:
+    for codec in ["utf-16-le", "utf-8", "utf-16-be", "latin-1"]:
         try:
             yield bytearray.fromhex(hex_str).decode(codec)
         except:
@@ -51,12 +52,12 @@ def answer(lines: List[str]):
     lines = lines[:-1]
     splitter = -1
     for i, line in enumerate(lines):
-        if line == '':
+        if line == "":
             splitter = i
             break
 
     line_options = [list(decode_str(l)) for l in lines[0:splitter]]
-    words = [l.strip() for l in lines[splitter+1:]]
+    words = [l.strip() for l in lines[splitter + 1 :]]
 
     print(line_options)
     print(words)
@@ -64,16 +65,16 @@ def answer(lines: List[str]):
     for word in words:
         idx = -1
         for i, ch in enumerate(word):
-            if ch != '.':
+            if ch != ".":
                 idx = i
                 break
         if idx == -1:
-            raise ValueError('did not find idx')
+            raise ValueError("did not find idx")
 
         found = False
         for i, options in enumerate(line_options):
             for option in options:
-                if 'Ã' in option:
+                if "Ã" in option:
                     continue
 
                 if len(option) == len(word) and word[idx] == option[idx]:
@@ -85,6 +86,6 @@ def answer(lines: List[str]):
                 break
 
         if not found:
-            assert False, f'No match for {word}'
+            assert False, f"No match for {word}"
 
     print(total)

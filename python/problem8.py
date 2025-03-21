@@ -8,7 +8,7 @@ def answer(lines: List[str]):
     num_valid = 0
 
     for line in lines:
-        if line == '':
+        if line == "":
             continue
 
         if password_is_valid(line):
@@ -36,7 +36,7 @@ def password_is_valid(line: str) -> bool:
         if not l:
             continue
 
-        if l.lower() in ['a', 'e', 'i', 'o', 'u']:
+        if l.lower() in ["a", "e", "i", "o", "u"]:
             has_vowel = True
         else:
             has_consonant = True
@@ -47,31 +47,32 @@ def password_is_valid(line: str) -> bool:
 
     return has_digit and has_vowel and has_consonant
 
+
 def letter(ch: str):
     desc = unicodedata.name(ch)
-    if m := re.search(r' LETTER (\w).*', desc):
+    if m := re.search(r" LETTER (\w).*", desc):
         letter = m.group(1)
         category = unicodedata.category(ch)
-        if category[1] == 'l':
+        if category[1] == "l":
             return letter.lower()
-        elif category[1] == 'u':
+        elif category[1] == "u":
             return letter.upper()
     else:
         return None
 
 
 def test_letter():
-    assert letter('ë') == 'e'
-    assert letter('ñ') == 'n'
-    assert letter('ŷ') == 'y'
+    assert letter("ë") == "e"
+    assert letter("ñ") == "n"
+    assert letter("ŷ") == "y"
 
 
 def test_passwords():
-    assert not password_is_valid('iS0')
-    assert not password_is_valid('V8AeC1S7KhP4Ļu')
-    assert not password_is_valid('pD9Ĉ*jXh')
-    assert not password_is_valid('E1-0')
-    assert not password_is_valid('ĕnz2cymE')
-    assert not password_is_valid('tqd~üō')
-    assert password_is_valid('IgwQúPtd9')
-    assert password_is_valid('k2lp79ąqV')
+    assert not password_is_valid("iS0")
+    assert not password_is_valid("V8AeC1S7KhP4Ļu")
+    assert not password_is_valid("pD9Ĉ*jXh")
+    assert not password_is_valid("E1-0")
+    assert not password_is_valid("ĕnz2cymE")
+    assert not password_is_valid("tqd~üō")
+    assert password_is_valid("IgwQúPtd9")
+    assert password_is_valid("k2lp79ąqV")

@@ -5,9 +5,10 @@ from multiprocessing.pool import ThreadPool
 from threading import Lock
 from functools import partial
 
+
 def all_forms(pw: str):
-    pw = unicodedata.normalize('NFC', pw)
-    prefixes = [(0, '')]
+    pw = unicodedata.normalize("NFC", pw)
+    prefixes = [(0, "")]
     forms = []
 
     while prefixes:
@@ -19,7 +20,7 @@ def all_forms(pw: str):
         # otherwise grab the next character
         next_char = pw[l]
         # then all possiblities for this character
-        decomposed_char = unicodedata.normalize('NFD', next_char)
+        decomposed_char = unicodedata.normalize("NFD", next_char)
         prefixes.append((l + 1, prefix + next_char))
         if decomposed_char != next_char:
             prefixes.append((l + 1, prefix + decomposed_char))
@@ -45,10 +46,10 @@ def test_example_input():
         "vbakos": "$2b$07$UYLaM1I0Hy/aHAhqbX/ao.c.VkkUaUYiKdBJW5PMuYyn5DJvn5C.W",
         "ltowne": "$2b$07$4F7o9sxNeaPe..........l1ZfgXdJdYtpfyyUYXN/HQA1lhpuldO",
     }
-    assert pw_attempt_is_valid(".pM?XÑ0i7ÈÌ", salts['etasche'])
-    assert not pw_attempt_is_valid("2ö$p3ÄÌgÁüy", salts['mpataki'])
-    assert not pw_attempt_is_valid("3+sÍkÜLg._", salts['ltowne'])
-    assert pw_attempt_is_valid("3+sÍkÜLg?_", salts['ltowne'])
+    assert pw_attempt_is_valid(".pM?XÑ0i7ÈÌ", salts["etasche"])
+    assert not pw_attempt_is_valid("2ö$p3ÄÌgÁüy", salts["mpataki"])
+    assert not pw_attempt_is_valid("3+sÍkÜLg._", salts["ltowne"])
+    assert pw_attempt_is_valid("3+sÍkÜLg?_", salts["ltowne"])
 
 
 def answer(lines: List[str]):
@@ -56,15 +57,16 @@ def answer(lines: List[str]):
     splitter = -1
 
     for i, line in enumerate(lines):
-        if line.strip() == '' and splitter == -1:
+        if line.strip() == "" and splitter == -1:
             splitter = i
             continue
 
     hash_strs = lines[0:splitter]
-    hashes = dict([line.split(' ') for line in hash_strs])
-    login_attempts = lines[splitter+1:-1]
+    hashes = dict([line.split(" ") for line in hash_strs])
+    login_attempts = lines[splitter + 1 : -1]
 
     lock = Lock()
+
     class IntegerRef:
         def __init__(self):
             self.value = 0
@@ -72,9 +74,8 @@ def answer(lines: List[str]):
         def incr(self):
             self.value += 1
 
-
     def check_pw(intref: IntegerRef, line):
-        user, pw = line.split(' ')
+        user, pw = line.split(" ")
         if pw_attempt_is_valid(pw, hashes[user]):
             with lock:
                 intref.incr()

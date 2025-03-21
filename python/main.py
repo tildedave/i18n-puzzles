@@ -12,28 +12,28 @@ import problem14
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('problem')
-    parser.add_argument('input_file')
+    parser.add_argument("problem")
+    parser.add_argument("input_file")
 
     args = parser.parse_args()
-    lines = open(args.input_file, 'r').read().split('\n')
-    if args.problem == 'problem6':
+    lines = open(args.input_file, "r").read().split("\n")
+    if args.problem == "problem6":
         problem6.answer(lines)
-    elif args.problem == 'problem7':
+    elif args.problem == "problem7":
         problem7.answer(lines)
-    elif args.problem == 'problem8':
+    elif args.problem == "problem8":
         problem8.answer(lines)
-    elif args.problem == 'problem9':
+    elif args.problem == "problem9":
         problem9.answer(lines)
-    elif args.problem == 'problem10':
+    elif args.problem == "problem10":
         problem10.answer(lines)
-    elif args.problem == 'problem11':
+    elif args.problem == "problem11":
         problem11.answer(lines)
-    elif args.problem == 'problem12':
+    elif args.problem == "problem12":
         problem12.answer(lines)
-    elif args.problem == 'problem13':
+    elif args.problem == "problem13":
         problem13.answer(lines)
-    elif args.problem == 'problem14':
+    elif args.problem == "problem14":
         problem14.answer(lines)
     else:
-        raise ValueError('Invalid Problem')
+        raise ValueError("Invalid Problem")
