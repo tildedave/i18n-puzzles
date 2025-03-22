@@ -219,6 +219,10 @@ def direction_to_string(d: int):
 def answer(lines: List[str]):
     lines = lines[:-1]
 
+    if len(lines) > 10:
+        lines = lines[5 : len(lines) - 6]
+        lines = [l[7 : len(l) - 7] for l in lines]
+
     # We'll assume it's trimmed already; for real input we'll have to do this
     # (probably via hardcoded indices)
     rows = []
@@ -247,13 +251,21 @@ def answer(lines: List[str]):
         # the squares means we lock everything in a spiral from the outside
         # going in
         print("checking matches", ch, x, y, direction_to_string(direction))
+        nx, ny = walk_direction(x, y, direction)
+        print(nx, ny, max_x, max_y)
+        if nx == 0 and ny == -1:
+            print("special case - starting point")
+            return UP in directions[ch]
+        elif nx == max_x - 1 and y == max_y - 1:
+            print("special case - ending point")
+            return DOWN in directions[ch]
+
         s: set[int] = expanded_direction[direction]
         points_in_that_direction = s.intersection(directions[ch])
         if not points_in_that_direction:
             print("does not point in direction", direction)
             return True
 
-        nx, ny = walk_direction(x, y, direction)
         if not in_bounds(nx, ny):
             return False
 
@@ -263,13 +275,6 @@ def answer(lines: List[str]):
 
     total_rotations = 0
     for x, y, locked_dirs in walk(max_x, max_y):
-        print("walking", x, y, locked_dirs)
-
-        if x == 0 and y == 0:
-            continue
-        if x == max_x - 1 and y == max_y - 1:
-            continue
-
         # As we walk we need to rotate the char to match the locked_dirs
         # We need the character at rows[y][x] to match EVERY locked_dir, both
         # directions
