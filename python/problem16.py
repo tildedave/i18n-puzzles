@@ -171,21 +171,29 @@ def walk(max_x: int, max_y: int):
     # so we'll skip it
     while True:
         seen = False
+        y = delta
         for x in range(delta, max_x - delta):
-            seen = True
-            yield (x, delta)
+            if 0 <= x < max_x and 0 <= y < max_y:
+                seen = True
+                yield (x, y)
 
+        x = max_x - delta - 1
         for y in range(delta + 1, max_y - delta):
-            seen = True
-            yield (max_x - delta - 1, y)
+            if 0 <= x < max_x and 0 <= y < max_y:
+                seen = True
+                yield (x, y)
 
+        y = max_y - delta - 1
         for x in range(max_x - delta - 1, delta - 1, -1):
-            seen = True
-            yield (x, max_y - delta - 1)
+            if 0 <= x < max_x and 0 <= y < max_y:
+                seen = True
+                yield (x, y)
 
+        x = delta
         for y in range(max_y - delta - 1, delta - 1, -1):
-            seen = True
-            yield (delta, y)
+            if 0 <= x < max_x and 0 <= y < max_y:
+                seen = True
+                yield (x, y)
 
         delta += 1
         if not seen:
@@ -267,26 +275,47 @@ def answer(lines: List[str]):
             return True
 
         if not in_bounds(nx, ny):
+            print(
+                f"\twe are pointing in {direction_to_string(direction)} but it is OOB"
+            )
             return False
 
         adjacent_ch = rows[ny][nx]
         needed = reverse_direction(next(iter(points_in_that_direction)))
-        return needed in directions.get(adjacent_ch, set())
+        result = needed in directions.get(adjacent_ch, set())
+        return result
 
     total_rotations = 0
     locked_points = set()
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch not in directions:
+                locked_points.add((x, y))
 
-    for x, y in walk(max_x, max_y):
-        # As we walk we need to rotate the char to match the locked_dirs
-        # We need the character at rows[y][x] to match EVERY locked_dir, both
-        # directions
+    unlocked_points = list(
+        (x, y) for x, y in walk(max_x, max_y) if (x, y) not in locked_points
+    )
+    while unlocked_points:
+        x, y = unlocked_points[0]
+        unlocked_points = unlocked_points[1:]
+
+        for _y, row in enumerate(rows):
+            for _x, ch in enumerate(row):
+                if (_x, _y) in locked_points:
+                    print(f"\x1b[1;37;41m{rows[_y][_x]}\x1b[0m", end="")
+                elif x == _x and y == _y:
+                    print(f"\x1b[1;37;42m{rows[_y][_x]}\x1b[0m", end="")
+                else:
+                    print(rows[_y][_x], end="")
+            print()
+
+        # As we walk we need to rotate the char to match the positions that
+        # are locked
         ch = rows[y][x]
-        if ch not in directions:
-            # Nothing to do
-            locked_points.add((x, y))
-            continue
-
+        original_ch = ch
         num_rotations = 0
+        valid_chars = {}
+
         while num_rotations < 4:
             print("ch now", ch)
 
@@ -320,24 +349,33 @@ def answer(lines: List[str]):
                     break
 
             if all_match:
-                break
+                valid_chars[ch] = min(valid_chars.get(ch, 10), num_rotations)
 
             prev_ch = ch
-            rows[y][x] = rotate_char_right(ch)
-            ch = rows[y][x]
+            ch = rotate_char_right(ch)
+            rows[y][x] = ch
             print(prev_ch, "rotated to", ch)
             num_rotations += 1
-        else:
+
+        if not valid_chars:
             raise ValueError("no rotation satisfying")
 
-        total_rotations += num_rotations
-        locked_points.add((x, y))
+        print("valid chars", x, y, valid_chars)
 
-        for _y, row in enumerate(rows):
-            for _x, ch in enumerate(row):
-                if x == _x and y == _y:
-                    print(f"\x1b[1;37;41m{rows[_y][_x]}\x1b[0m", end="")
-                else:
-                    print(rows[_y][_x], end="")
-            print()
+        if x == 0 and y == 0:
+            valid_chars = {k: v for k, v in valid_chars.items() if UP in directions[k]}
+        elif x == max_x - 1 and y == max_y - 1:
+            valid_chars = {
+                k: v for k, v in valid_chars.items() if DOWN in directions[k]
+            }
+
+        if len(valid_chars) == 1:
+            new_ch, num_rotations = next(iter(valid_chars.items()))
+            rows[y][x] = new_ch
+            total_rotations += num_rotations
+            locked_points.add((x, y))
+        else:
+            rows[y][x] = original_ch
+            unlocked_points.append((x, y))
+
         print(total_rotations)
