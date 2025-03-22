@@ -173,19 +173,19 @@ def walk(max_x: int, max_y: int):
         seen = False
         for x in range(delta, max_x - delta):
             seen = True
-            yield (x, delta, {UP, LEFT})
+            yield (x, delta)
 
         for y in range(delta + 1, max_y - delta):
             seen = True
-            yield (max_x - delta - 1, y, {RIGHT, UP})
+            yield (max_x - delta - 1, y)
 
         for x in range(max_x - delta - 1, delta - 1, -1):
             seen = True
-            yield x, max_y - delta - 1, {DOWN, RIGHT}
+            yield (x, max_y - delta - 1)
 
         for y in range(max_y - delta - 1, delta - 1, -1):
             seen = True
-            yield delta, y, {DOWN, LEFT}
+            yield (delta, y)
 
         delta += 1
         if not seen:
@@ -250,20 +250,20 @@ def answer(lines: List[str]):
         # IF it doesn't point in that direction, no problems.  the way we walk
         # the squares means we lock everything in a spiral from the outside
         # going in
-        print("checking matches", ch, x, y, direction_to_string(direction))
+        print("\tchecking matches", ch, x, y, direction_to_string(direction))
         nx, ny = walk_direction(x, y, direction)
-        print(nx, ny, max_x, max_y)
-        if nx == 0 and ny == -1:
-            print("special case - starting point")
-            return UP in directions[ch]
-        elif nx == max_x - 1 and y == max_y - 1:
-            print("special case - ending point")
-            return DOWN in directions[ch]
+
+        if nx == 0 and ny == -1 and direction == UP:
+            print("\tspecial case - starting point")
+            return True
+        elif nx == max_x - 1 and y == max_y - 1 and direction == DOWN:
+            print("\tspecial case - ending point")
+            return True
 
         s: set[int] = expanded_direction[direction]
         points_in_that_direction = s.intersection(directions[ch])
         if not points_in_that_direction:
-            print("does not point in direction", direction)
+            print("\tdoes not point in direction", direction)
             return True
 
         if not in_bounds(nx, ny):
@@ -274,13 +274,16 @@ def answer(lines: List[str]):
         return needed in directions.get(adjacent_ch, set())
 
     total_rotations = 0
-    for x, y, locked_dirs in walk(max_x, max_y):
+    locked_points = set()
+
+    for x, y in walk(max_x, max_y):
         # As we walk we need to rotate the char to match the locked_dirs
         # We need the character at rows[y][x] to match EVERY locked_dir, both
         # directions
         ch = rows[y][x]
         if ch not in directions:
             # Nothing to do
+            locked_points.add((x, y))
             continue
 
         num_rotations = 0
@@ -288,12 +291,15 @@ def answer(lines: List[str]):
             print("ch now", ch)
 
             all_match = True
-            for dir in locked_dirs:
-                print(f"{direction_to_string(dir)} locked, checking it")
+            for dir in {UP, LEFT, RIGHT, DOWN}:
+                nx, ny = walk_direction(x, y, dir)
 
+                if in_bounds(nx, ny) and (nx, ny) not in locked_points:
+                    continue
+
+                print(f"{direction_to_string(dir)} locked, checking it")
                 matches_dir = matches(ch, x, y, dir)
 
-                nx, ny = walk_direction(x, y, dir)
                 if not in_bounds(nx, ny):
                     matches_from_reverse_dir = True
                 elif rows[ny][nx] not in directions:
@@ -325,7 +331,13 @@ def answer(lines: List[str]):
             raise ValueError("no rotation satisfying")
 
         total_rotations += num_rotations
+        locked_points.add((x, y))
 
-        for row in rows:
-            print("".join(row))
+        for _y, row in enumerate(rows):
+            for _x, ch in enumerate(row):
+                if x == _x and y == _y:
+                    print(f"\x1b[1;37;41m{rows[_y][_x]}\x1b[0m", end="")
+                else:
+                    print(rows[_y][_x], end="")
+            print()
         print(total_rotations)
