@@ -140,46 +140,49 @@ def answer(lines: List[str]):
 
         found_match = False
         for p1, p2 in combinations_with_replacement(parsed_paragraphs, 2):
-            # We'll only try if len(p1) <= len(p2) (merging p1 INTO p2)
-            if p1 == p2 or len(p1) > len(p2):
+            if p1 == p2:
                 continue
             i = 0
             merged_paragraphs = []
 
             offset = 0
             found_match = False
-            while len(p1) + offset <= len(p2):
-                merged_paragraphs = copy(p2[0:offset])
-                while i < len(p1):
+            while offset <= len(p2):
+                merged_paragraphs = copy(p2[:offset])
+                # Offset is the index in which we start looking at p2
+                # i is the index in p1 we're walking at
+                i = 0
+                while i < len(p1) and i + offset < len(p2):
                     if f := merge_fragments(p1[i], p2[i + offset]):
-                        print("-----")
-                        print("merged")
-                        print(print_fragment_line(p1[i].line))
-                        print(print_fragment_line(p2[i + offset].line))
-                        print("into")
-                        print(print_fragment_line(f.line))
-                        print("-----")
+                        # print("-----")
+                        # print("merged")
+                        # print(print_fragment_line(p1[i].line))
+                        # print(print_fragment_line(p2[offset].line))
+                        # print("into")
+                        # print(print_fragment_line(f.line))
+                        # print("-----")
 
                         merged_paragraphs.append(f)
                     else:
-                        # print("><><><><><><><")
-                        # print("womp womp")
-                        # print(print_fragment_line(p1[i].line))
-                        # print(print_fragment_line(p2[i + offset].line))
-                        # print("><><><><><><><")
-
-                        merged_paragraphs = []
                         break
                     i += 1
                 else:
                     # We have a match, add the rest of p2
-                    while i < len(p2):
-                        merged_paragraphs.append(p2[i])
-                        i += 1
+                    if i < len(p1):
+                        # add the rest of p1
+                        while i < len(p1):
+                            merged_paragraphs.append(p1[i])
+                            i += 1
+                    else:
+                        while i + offset < len(p2):
+                            merged_paragraphs.append(p2[i + offset])
+                            i += 1
                     found_match = True
 
                 if found_match:
                     break
+                else:
+                    merged_paragraphs = []
                 offset += 1
 
             if found_match:
@@ -194,7 +197,8 @@ def answer(lines: List[str]):
                 print(paragraph_string(p1))
                 print("AND")
                 print(paragraph_string(p2))
-                print("RESULT", paragraph_string(merged_paragraphs))
+                print("RESULT")
+                print(paragraph_string(merged_paragraphs))
                 break
         else:
             print("no matches found", parsed_paragraphs)
@@ -202,4 +206,5 @@ def answer(lines: List[str]):
 
         parsed_paragraphs = next_paragraphs
 
-    print(parsed_paragraphs)
+    print("DONE")
+    print(paragraph_string(parsed_paragraphs[0]))
