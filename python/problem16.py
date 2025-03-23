@@ -1,5 +1,4 @@
 from typing import List
-from enum import Enum
 import functools
 
 extended_chars = "ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■"
@@ -258,26 +257,19 @@ def answer(lines: List[str]):
         # IF it doesn't point in that direction, no problems.  the way we walk
         # the squares means we lock everything in a spiral from the outside
         # going in
-        print("\tchecking matches", ch, x, y, direction_to_string(direction))
         nx, ny = walk_direction(x, y, direction)
 
         if nx == 0 and ny == -1 and direction == UP:
-            print("\tspecial case - starting point")
             return True
         elif nx == max_x - 1 and y == max_y - 1 and direction == DOWN:
-            print("\tspecial case - ending point")
             return True
 
         s: set[int] = expanded_direction[direction]
         points_in_that_direction = s.intersection(directions[ch])
         if not points_in_that_direction:
-            print("\tdoes not point in direction", direction)
             return True
 
         if not in_bounds(nx, ny):
-            print(
-                f"\twe are pointing in {direction_to_string(direction)} but it is OOB"
-            )
             return False
 
         adjacent_ch = rows[ny][nx]
@@ -317,8 +309,6 @@ def answer(lines: List[str]):
         valid_chars = {}
 
         while num_rotations < 4:
-            print("ch now", ch)
-
             all_match = True
             for dir in {UP, LEFT, RIGHT, DOWN}:
                 nx, ny = walk_direction(x, y, dir)
@@ -326,7 +316,6 @@ def answer(lines: List[str]):
                 if in_bounds(nx, ny) and (nx, ny) not in locked_points:
                     continue
 
-                print(f"{direction_to_string(dir)} locked, checking it")
                 matches_dir = matches(ch, x, y, dir)
 
                 if not in_bounds(nx, ny):
@@ -338,29 +327,20 @@ def answer(lines: List[str]):
                     matches_from_reverse_dir = matches(rows[ny][nx], nx, ny, rev_dir)
 
                 if matches_dir and matches_from_reverse_dir:
-                    print(f"{direction_to_string(dir)} does match")
+                    pass
                 else:
-                    print(
-                        f"{direction_to_string(dir)} does not match",
-                        matches_dir,
-                        matches_from_reverse_dir,
-                    )
                     all_match = False
                     break
 
             if all_match:
                 valid_chars[ch] = min(valid_chars.get(ch, 10), num_rotations)
 
-            prev_ch = ch
             ch = rotate_char_right(ch)
             rows[y][x] = ch
-            print(prev_ch, "rotated to", ch)
             num_rotations += 1
 
         if not valid_chars:
             raise ValueError("no rotation satisfying")
-
-        print("valid chars", x, y, valid_chars)
 
         if x == 0 and y == 0:
             valid_chars = {k: v for k, v in valid_chars.items() if UP in directions[k]}
