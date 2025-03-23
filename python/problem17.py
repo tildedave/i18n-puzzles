@@ -342,7 +342,10 @@ def answer(lines: List[str]):
             assert False, "no match found"
         print(paragraph_string(m))
         print(m)
-        # if len(remaining) == 5:
-        #     assert False
 
-    print(m)
+    final = paragraph_string(m).split("\n")
+    for y, row in enumerate(final):
+        for x, ch in enumerate(row):
+            if ch == "╳":
+                print(x * y)
+                return
