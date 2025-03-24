@@ -11,6 +11,7 @@ import problem14
 import problem15
 import problem16
 import problem17
+import problem18
 
 
 if __name__ == "__main__":
@@ -44,5 +45,7 @@ if __name__ == "__main__":
         problem16.answer(lines)
     elif args.problem == "problem17":
         problem17.answer(lines)
+    elif args.problem == "problem18":
+        problem18.answer(lines)
     else:
         raise ValueError("Invalid Problem")
