@@ -80,9 +80,19 @@ def merge_fragments(fragment1: Fragment, fragment2: Fragment):
         return None
 
     if fragment1.suffix == "" and fragment2.prefix == "":
-        return Fragment(
+        f = Fragment(
             fragment1.line + fragment2.line, fragment1.prefix, fragment2.suffix
         )
+        # if fragment1.line.endswith("e295902d"):
+        #     if fragment2.line.startswith("2de29590"):
+        #         return f
+        #     return None
+
+        # if fragment1.line.endswith("2de29590"):
+        #     if fragment2.line.startswith("e29590"):
+        #         return f
+        #     return None
+        return f
 
     if fragment1.suffix == "":
         # print("cannot merge since fragment2 has a prefix but fragment1 has no suffix")
@@ -121,7 +131,19 @@ def merge_fragments(fragment1: Fragment, fragment2: Fragment):
             fragment1.prefix,
             fragment2.suffix,
         )
+        # if (fragment1.line + fragment1.suffix + fragment2.prefix).endswith(
+        #     "e295e29590"
+        # ):
+        #     if fragment2.line.startswith("e295e29590"):
+        #         return f
+        #     return None
+
         assert f.length() == fragment1.length() + fragment2.length()
+        # print("merging")
+        # print(print_fragment_line(fragment1.line))
+        # print(print_fragment_line(fragment2.line))
+        # print("into")
+        # print(print_fragment_line(f.line))
         return f
     # else:
     # print("no merge", fragment1, fragment2)
@@ -159,7 +181,20 @@ def merge_paragraphs(p1: List[Fragment], p2: List[Fragment]):
     # min_match_lines
     # our perspective will be from p1's
     # we will consider starting like p1 p2 and then sliding p1 "forward" to match p2
-    for p2_offset in range(len(p2)):
+
+    if "e295902de29590" in p1[0].line and "e295902de29590" in p2[0].line:
+        merged = [merge_fragments(f1, f2) for f1, f2 in zip(p1, p2)]
+        if len(p2) > len(p1):
+            suffix = p2[len(p1) :]
+        elif len(p1) > len(p2):
+            suffix = p1[len(p2) :]
+        else:
+            suffix = []
+        if all(merged):
+            return merged + suffix
+        return None
+
+    for p2_offset in range(0, len(p2), min_match_lines):
         # prefix is [:p2_offset] p1 [p1 suffix]
         # only test for a match if the overlap is within min_match_lines
         prefix = p2[:p2_offset]
@@ -176,10 +211,13 @@ def merge_paragraphs(p1: List[Fragment], p2: List[Fragment]):
 
         merged = [merge_fragments(f1, f2) for f1, f2 in zip(p1_overlap, p2_overlap)]
         if all(merged):
+            print("merged!", merged, p2_offset)
+            print(p1[0].line)
+            print(p2[0].line)
             return prefix + merged + suffix
 
     # Slide p2 along p1 since this is required :-|
-    for p1_offset in range(len(p1)):
+    for p1_offset in range(0, len(p1), min_match_lines):
         # prefix is [:p1_offset] p2 [suffix]
         prefix = p1[:p1_offset]
         overlap_idx = min(len(p1) - p1_offset, len(p2))
@@ -195,6 +233,10 @@ def merge_paragraphs(p1: List[Fragment], p2: List[Fragment]):
 
         merged = [merge_fragments(f1, f2) for f1, f2 in zip(p1_overlap, p2_overlap)]
         if all(merged):
+            print("merged p2!", merged, p2_offset)
+            print(p1[0].line)
+            print(p2[0].line)
+            print(min_match_lines)
             return prefix + merged + suffix
 
     return None
@@ -314,21 +356,46 @@ def answer(lines: List[str]):
             parsed_paragraph.append(parse_fragment(line))
         parsed_paragraphs.append(parsed_paragraph)
 
-    m = parsed_paragraphs[0]
+    for m in parsed_paragraphs:
+        if m[0].line.startswith("e29594"):
+            print("starting with", m)
+            break
+    else:
+        print("could not find top left corner to start")
     remaining = parsed_paragraphs
     remaining.remove(m)
+
+    global min_match_lines
+    min_match_lines = min(len(p) for p in parsed_paragraphs)
+    print("min match lines", min_match_lines)
 
     while remaining:
         for p in remaining:
             if merged := merge_paragraphs(p, m):
+                if p[0].line.startswith("e29594") and not merged[0].line.startswith(
+                    "e29594"
+                ):
+                    assert False, "bad"
+
                 m = merged
                 remaining.remove(p)
                 break
             if merged := merge_paragraphs(m, p):
+                if m[0].line.startswith("e29594") and not merged[0].line.startswith(
+                    "e29594"
+                ):
+                    print("BAD")
+                    print(paragraph_string(m))
+                    print("******")
+                    print(paragraph_string(p))
+                    print("INTO")
+                    print(paragraph_string(merged))
+                    assert False, "bad"
                 m = merged
                 remaining.remove(p)
                 break
         else:
+            print("NO MATCH :-(")
             print(len(remaining))
             print(paragraph_string(m))
             print("****")
