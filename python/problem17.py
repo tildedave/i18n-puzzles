@@ -124,8 +124,6 @@ def merge_fragments(fragment1: Fragment, fragment2: Fragment):
         )
         assert f.length() == fragment1.length() + fragment2.length()
         return f
-    # else:
-    # print("no merge", fragment1, fragment2)
 
     return None
 
@@ -216,12 +214,11 @@ def answer(lines: List[str]):
                 break
         else:
             assert False, "no match found"
-        print(paragraph_string(m))
-        print(m)
 
     final = paragraph_string(m).split("\n")
     for y, row in enumerate(final):
         for x, ch in enumerate(row):
             if ch == "╳":
+                print(paragraph_string(m))
                 print(x * y)
                 return
